@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>礼品库特卖 · 管理后台</title>
+<link rel="stylesheet" href="/assets/style.css">
+<link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+</head>
+<body>
+
+<!-- 登录遮罩 -->
+<div class="login-mask" id="loginMask">
+  <div class="login-card">
+    <img class="login-logo" src="/assets/logo.svg" alt="GIFT MALL">
+    <h3>礼品库特卖 · 管理后台</h3>
+    <p>请输入管理口令登录</p>
+    <input class="input" type="password" id="pwdInput" placeholder="管理口令" autofocus autocomplete="current-password" style="text-align:center">
+    <div class="login-err" id="loginErr"></div>
+    <button class="btn primary lg block" id="loginBtn">登 录</button>
+    <a href="/" style="display:block;margin-top:14px;font-size:12px;color:var(--muted)">← 返回前台</a>
+  </div>
+</div>
+
+<div class="admin-layout">
+  <!-- 侧边栏 -->
+  <aside class="side">
+    <div class="logo">
+      <img class="brand-logo" src="/assets/logo.svg" alt="GIFT MALL">
+      <span class="brand-divider"></span>
+      <span class="brand-text">礼品库特卖<small>后台管理</small></span>
+    </div>
+    <nav class="side-nav">
+      <a href="#" data-view="dash" class="on"><svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>概览</a>
+      <a href="#" data-view="products"><svg viewBox="0 0 24 24"><path d="m12 2-9 4.5v11L12 22l9-4.5v-11L12 2zm0 2.2 6.4 3.2L12 10.6 5.6 7.4 12 4.2zM5 9l6 3v7.5l-6-3V9zm8 10.5V12l6-3v7.5l-6 3z"/></svg>礼品管理</a>
+      <a href="#" data-view="orders"><svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 16H5V9h14v10zM5 7V5h14v2H5z"/></svg>购买订单</a>
+      <a href="#" data-view="logs"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>操作日志</a>
+    </nav>
+    <div class="side-ft">
+      <button class="btn sm" id="pwdBtn">修改口令</button>
+      <button class="btn sm" id="logoutBtn">退出登录</button>
+      <div class="who">行政部 · 礼品库特卖 <span id="appVer">v1.1.0</span></div>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <!-- ============ 概览 ============ -->
+    <section id="view-dash" class="view">
+      <div class="admin-hd">
+        <h2>经营概览</h2>
+        <span class="spacer"></span>
+        <button class="btn" id="backupBtn" title="下载数据库与全部图片的完整备份 zip；服务每天也会自动备份到 data/backups/">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17 18v-3h2v3h3v2h-3v3h-2v-3h-3v-2h3zM11 6.8 8.4 9.4 7 8l5-5 5 5-1.4 1.4L13 6.8V16h-2V6.8zM5 20v-5H3v5a3 3 0 0 0 3 3h6v-2H6a1 1 0 0 1-1-1z"/></svg>
+          备份数据
+        </button>
+        <button class="btn" id="exportBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-5H3v5a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3v-5h-2zM11 6.8 8.4 9.4 7 8l5-5 5 5-1.4 1.4L13 6.8V16h-2V6.8z"/></svg>
+          导出台账 (Excel)
+        </button>
+      </div>
+      <div class="stat-cards" id="statCards"></div>
+      <div class="panel" id="chartPanel">
+        <div class="panel-hd"><b>📊 发放统计</b><span style="color:var(--muted);font-size:12px">趋势为近 14 天，排行与部门为近 30 天，已取消订单不计入</span></div>
+        <div id="chartTrend"></div>
+        <div class="chart-cols">
+          <div>
+            <div class="chart-sub">热门礼品 TOP（按购买件数）</div>
+            <div id="chartTop" class="hbar-list"></div>
+          </div>
+          <div>
+            <div class="chart-sub">部门分布（按购买件数）</div>
+            <div id="chartDepts" class="hbar-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:22px">
+        <div class="panel-hd"><b>特卖活动开关</b>
+          <span style="color:var(--muted);font-size:12px">开启「已结束」后，前台停止展示商品并禁止下单</span>
+          <span class="spacer"></span>
+          <span id="saleState" style="font-size:13px;margin-right:8px"></span>
+          <button class="btn sm" id="saleToggle"></button>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:22px">
+        <div class="panel-hd"><b>购买规则</b>
+          <span style="color:var(--muted);font-size:12px">按购买人姓名统计当月件数，0 表示不限制</span>
+          <span class="spacer"></span>
+          <label style="font-size:13px;color:var(--ink-2)">每人每月限购
+            <input class="input" id="monthLimit" type="number" min="0" style="width:80px;margin:0 6px"> 件
+          </label>
+          <button class="btn sm primary" id="saveLimit">保存</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd"><b>⚠️ 有效期预警</b><span style="color:var(--muted);font-size:12px">90 天内到期或已过期的礼品</span></div>
+        <div class="table-wrap"><table class="tbl"><tbody id="warnBody"></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- ============ 礼品管理 ============ -->
+    <section id="view-products" class="view" style="display:none">
+      <div class="admin-hd">
+        <h2>礼品管理</h2>
+        <span class="spacer"></span>
+        <input class="input" id="aQ" placeholder="搜索礼品…" style="width:200px">
+        <button class="btn" id="tplBtn" title="下载 Excel 填写模板（含填写说明）">下载模板</button>
+        <button class="btn" id="impBtn" title="按模板批量导入礼品，图片可稍后逐条添加">批量导入</button>
+        <input type="file" id="impFile" accept=".xlsx,.xlsm" style="display:none">
+        <button class="btn primary" id="addBtn">＋ 新增礼品</button>
+      </div>
+      <div class="panel">
+        <div id="impBox" style="display:none;padding:10px 14px;border-bottom:1px solid var(--line);font-size:13px;line-height:1.9"></div>
+        <div class="batch-bar" id="batchBar" style="display:none">
+          <span class="batch-count">已选 <b id="batchCount">0</b> 件</span>
+          <button class="btn sm" id="batOn">批量上架</button>
+          <button class="btn sm" id="batOff">批量下架</button>
+          <button class="btn sm" id="batEdit">批量修改</button>
+          <button class="btn sm danger" id="batDel">批量删除</button>
+          <span class="spacer"></span>
+          <button class="btn sm ghost" id="batCancel">取消选择</button>
+        </div>
+        <div class="table-wrap">
+          <table class="tbl">
+            <thead><tr>
+              <th style="width:36px"><input type="checkbox" id="chkAll" title="全选" style="width:15px;height:15px;accent-color:var(--brand);cursor:pointer"></th>
+              <th style="width:60px">图片</th><th>名称 / 规格</th>
+              <th>单价</th><th>库存</th><th>生产日期</th><th>有效期</th>
+              <th>上架</th><th style="text-align:right">操作</th>
+            </tr></thead>
+            <tbody id="pBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 订单 ============ -->
+    <section id="view-orders" class="view" style="display:none">
+      <div class="admin-hd">
+        <h2>购买订单</h2>
+        <span class="spacer"></span>
+        <div class="tabs" id="oTabs">
+          <button data-st="" class="on">全部</button>
+          <button data-st="pending">待发放</button>
+          <button data-st="done">已发放</button>
+          <button data-st="picked">已领实物</button>
+          <button data-st="cancel">已取消</button>
+        </div>
+      </div>
+      <div class="panel" id="ordersPanel"><div id="ordersBody"></div></div>
+    </section>
+
+    <!-- ============ 操作日志 ============ -->
+    <section id="view-logs" class="view" style="display:none">
+      <div class="admin-hd">
+        <h2>操作日志</h2>
+        <span class="spacer"></span>
+        <span style="color:var(--muted);font-size:12px">记录后台全部管理操作，最多保留 2000 条</span>
+        <button class="btn sm" id="logsRefresh">刷新</button>
+      </div>
+      <div class="panel">
+        <div class="table-wrap">
+          <table class="tbl">
+            <thead><tr>
+              <th style="width:150px">时间</th><th style="width:110px">操作</th>
+              <th>详情</th><th style="width:120px">来源 IP</th>
+            </tr></thead>
+            <tbody id="logsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- 编辑抽屉 -->
+<div class="mask" id="amask"></div>
+<aside class="drawer" id="editDrawer">
+  <div class="drawer-hd"><b id="eTitle">新增礼品</b>
+    <button class="x-btn" id="editClose"><svg viewBox="0 0 24 24"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg></button>
+  </div>
+  <div class="drawer-bd">
+    <div class="uploader" id="uploader">
+      <div id="upInner" style="display:flex;flex-direction:column;align-items:center;gap:6px;width:100%">
+        <svg viewBox="0 0 24 24"><path d="M19 13v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-5H3v5a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3v-5h-2zM11 6.8 8.4 9.4 7 8l5-5 5 5-1.4 1.4L13 6.8V16h-2V6.8z"/></svg>
+        <div id="upHint">点击或拖拽图片到此处上传<br><small>支持 jpg / png，不超过 8MB</small></div>
+      </div>
+    </div>
+    <!-- 文件选择框必须放在 uploader 外面：编辑时会重写 uploader 内部内容，放里面会被干掉 -->
+    <input type="file" id="upFile" accept="image/png,image/jpeg,image/webp,image/gif,image/bmp" style="display:none">
+    <div class="form-grid" style="margin-top:16px">
+      <div class="field full"><label>礼品名称 <i>*</i></label><input class="input" id="eName" placeholder="请输入礼品名称"></div>
+      <div class="field"><label>规格</label><input class="input" id="eSpec" placeholder="如：500ml / 单个装"></div>
+      <div class="field"><label>单价（元）<i>*</i></label><input class="input" id="ePrice" type="number" step="0.01" min="0" placeholder="0.00"></div>
+      <div class="field"><label>划线原价（元）</label><input class="input" id="eOrig" type="number" step="0.01" min="0" placeholder="留空则不显示"></div>
+      <div class="field"><label>库存数量 <i>*</i></label><input class="input" id="eStock" type="number" min="0" placeholder="0"></div>
+      <div class="field"><label>生产日期</label><input class="input" id="ePd" type="date"></div>
+      <div class="field"><label>有效期至</label><input class="input" id="eEd" type="date"></div>
+      <div class="field"><label>排序号</label><input class="input" id="eSort" type="number" placeholder="小的排前面"></div>
+      <div class="field full"><label>描述</label><textarea class="input" id="eDesc" rows="3"></textarea></div>
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;color:var(--ink-2)">
+      <input type="checkbox" id="eStatus" checked style="width:16px;height:16px;accent-color:var(--brand)"> 前台上架显示
+    </label>
+  </div>
+  <div class="drawer-ft">
+    <button class="btn primary lg block" id="saveBtn">保 存</button>
+  </div>
+</aside>
+
+<!-- 批量修改弹窗 -->
+<div class="mask" id="batMask"></div>
+<div class="mini-modal" id="batModal" style="display:none">
+  <div class="mini-modal-hd"><b>批量修改（已选 <span id="beCount">0</span> 件）</b>
+    <button class="x-btn" id="batEditClose"><svg viewBox="0 0 24 24"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg></button>
+  </div>
+  <div class="mini-modal-bd">
+    <p class="mini-tip">价格和库存都不填则无事发生；只填想改的那项。</p>
+    <div class="field"><label>价格调整</label>
+      <div style="display:flex;gap:8px">
+        <select class="input" id="beMode" style="width:150px;flex:none">
+          <option value="none">不调整价格</option>
+          <option value="percent">按百分比（如 90 = 9折）</option>
+          <option value="fixed">统一改为固定价</option>
+        </select>
+        <input class="input" id="bePrice" type="number" step="0.01" min="0" placeholder="数值" disabled>
+      </div>
+    </div>
+    <div class="field" style="margin-top:12px"><label>库存调整</label>
+      <div style="display:flex;gap:8px">
+        <select class="input" id="beStockMode" style="width:150px;flex:none">
+          <option value="none">不调整库存</option>
+          <option value="add">每件增加（补货）</option>
+          <option value="set">统一设为</option>
+        </select>
+        <input class="input" id="beStock" type="number" step="1" min="0" placeholder="数量（件）" disabled>
+      </div>
+    </div>
+  </div>
+  <div class="mini-modal-ft">
+    <button class="btn ghost" id="batEditCancel">取消</button>
+    <button class="btn primary" id="batEditGo">应用到选中礼品</button>
+  </div>
+</div>
+
+<div id="toast-wrap"></div>
+<script src="/assets/admin.js"></script>
+</body>
+</html>

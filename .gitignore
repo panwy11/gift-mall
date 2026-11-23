@@ -1,0 +1,18 @@
+# 运行数据（含数据库、上传图片、备份），不入库
+data/
+dist/
+
+# 构建产物
+build/
+_version_info.txt
+*.spec
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# 系统 / 编辑器
+Thumbs.db
+.DS_Store
+*.log

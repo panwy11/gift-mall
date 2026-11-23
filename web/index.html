@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>礼品库特卖 · 员工福利商城</title>
+<link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+
+<!-- 顶栏 -->
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="logo">
+      <img class="brand-logo" src="/assets/logo.svg" alt="GIFT MALL">
+      <span class="brand-divider"></span>
+      <span class="brand-text">礼品库特卖<small>GIFT&nbsp;MALL</small></span>
+    </div>
+
+    <div class="search-box">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg>
+      <input id="q" class="input" placeholder="搜索礼品名称、规格…" autocomplete="off">
+    </div>
+
+    <span class="spacer"></span>
+    <button class="admin-link" id="myOrderBtn">订单查询</button>
+    <a class="admin-link" href="/admin">管理后台</a>
+    <button class="cart-btn" id="cartBtn">
+      <svg viewBox="0 0 24 24"><path d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7.2 14h9.5c.8 0 1.4-.4 1.7-1.1l3.5-6.3A1 1 0 0 0 21 5H6.4l-.7-2H2v2h2.3l3.1 9.6A2 2 0 0 0 9.4 16H19v-2H9.4l-.2-1z"/></svg>
+      购买清单
+      <span class="cart-badge" id="cartBadge" style="display:none">0</span>
+    </button>
+  </div>
+</header>
+
+<!-- 头部横幅 -->
+<section class="hero">
+  <div class="hero-card">
+    <div class="hero-left">
+      <div class="hero-eyebrow">员工福利 · 内网特卖专场</div>
+      <div class="hero-title">礼品物资<span class="hero-dot">·</span><em>在线特卖</em></div>
+      <div class="hero-sub">精选好物限时特卖，先到先得；库存与效期实时同步</div>
+    </div>
+    <div class="hero-mid">
+      <div class="live-chip" id="saleChip"><i class="live-dot"></i><span>本期特卖进行中</span></div>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><b id="sKinds">-</b><span>在售品类</span></div>
+      <div class="hstat"><b id="sStock">-</b><span>总库存</span></div>
+      <div class="hstat"><b id="sPeriod">-</b><span>已售出</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 筛选 -->
+<div class="filter-bar">
+  <select id="sort" class="input">
+    <option value="new">默认排序</option>
+    <option value="price_asc">价格从低到高</option>
+    <option value="price_desc">价格从高到低</option>
+    <option value="stock_desc">库存最多</option>
+  </select>
+</div>
+
+<!-- 商品网格 -->
+<main class="grid" id="grid"></main>
+
+<footer class="footer">
+  <img class="footer-logo" src="/assets/footer-logo.svg" alt="员工福利商城">
+  <div class="footer-line">礼品库特卖管理系统 · 库存与有效期数据由后台统一维护 &nbsp;|&nbsp; 如遇问题请联系 行政部</div>
+</footer>
+
+<!-- 详情抽屉 -->
+<div class="mask" id="mask1"></div>
+<aside class="drawer" id="dDrawer">
+  <div class="drawer-hd">
+    <b>礼品详情</b>
+    <button class="x-btn" data-close="dDrawer"><svg viewBox="0 0 24 24"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg></button>
+  </div>
+  <div class="drawer-bd" id="dBody"></div>
+  <div class="drawer-ft" id="dFoot"></div>
+</aside>
+
+<!-- 图片放大灯箱 -->
+<div class="lightbox" id="lightbox">
+  <button class="lb-x" title="关闭"><svg viewBox="0 0 24 24"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg></button>
+  <div class="lb-hint">滚轮 / 双指缩放 · 点击图片放大 · 放大后可拖动</div>
+  <button class="lb-nav lb-prev" title="上一张"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <img id="lb-img" src="" alt="" draggable="false">
+  <button class="lb-nav lb-next" title="下一张"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <button class="lb-zoom" title="复原大小">100%</button>
+  <div class="lb-count"></div>
+</div>
+
+<!-- 购物车抽屉 -->
+<div class="mask" id="mask2"></div>
+<aside class="drawer" id="cDrawer">
+  <div class="drawer-hd">
+    <b>购买清单</b>
+    <button class="x-btn" data-close="cDrawer"><svg viewBox="0 0 24 24"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg></button>
+  </div>
+  <div class="drawer-bd" id="cBody"></div>
+  <div class="drawer-ft" id="cFoot"></div>
+</aside>
+
+<!-- 查单抽屉 -->
+<aside class="drawer" id="qDrawer">
+  <div class="drawer-hd"><b>订单查询</b>
+    <button class="x-btn" data-close="qDrawer"><svg viewBox="0 0 24 24"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg></button>
+  </div>
+  <div class="drawer-bd">
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <input class="input" id="qKeyword" placeholder="姓名 / 手机号 / 单号">
+      <button class="btn primary" id="qGo">查询</button>
+    </div>
+    <div id="qResult"><div class="empty"><div class="icon">🔍</div>输入提交时填写的姓名或手机号<br>即可查看购买进度</div></div>
+  </div>
+</aside>
+
+<div id="toast-wrap"></div>
+<script src="/assets/shop.js"></script>
+</body>
+</html>
